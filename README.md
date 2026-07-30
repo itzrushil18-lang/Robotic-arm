@@ -1,191 +1,40 @@
-#include <WiFi.h>
-#include <WebServer.h>
-#include <ESP32Servo.h>
+# 🤖 Rushil Robot Arm
 
-const char* ssid = "RushilRobot";
-const char* password = "12345678";
+A Wi-Fi controlled robotic arm built using an ESP32 and SG90 servo motors.
 
-WebServer server(80);
+## Features
 
-Servo shoulder;
-Servo elbow;
+- Wi-Fi control
+- ESP32 Web Server
+- Shoulder and Elbow control
+- Expandable to 3 servos
 
-int shoulderAngle = 90;
-int elbowAngle = 90;
+## Hardware
 
-void handleRoot() {
+- ESP32 DevKit
+- 2 × SG90 Servo Motors
+- Breadboard
+- Jumper Wires
+- External Power Supply
 
-  String html = R"rawliteral(
-<!DOCTYPE html>
-<html>
-<head>
-<title>Rushil Robot Arm</title>
+## Software
 
-<style>
-body{
-  font-family:Arial;
-  text-align:center;
-  background:#f2f2f2;
-  margin-top:40px;
-}
+- Arduino IDE
+- ESP32Servo
+- WiFi Library
+- WebServer Library
 
-.slider{
-  width:80%;
-}
+## How to Run
 
-button{
-  padding:12px 25px;
-  font-size:18px;
-  border:none;
-  border-radius:10px;
-  background:#2196F3;
-  color:white;
-  cursor:pointer;
-}
+1. Open `Robotic-arm.ino`
+2. Install the required libraries.
+3. Upload to the ESP32.
+4. Connect to the Wi-Fi network.
+5. Open the ESP32 IP address in a browser.
 
-button:hover{
-  background:#1976D2;
-}
-</style>
+## Future Plans
 
-</head>
-
-<body>
-
-<h1>🤖 Rushil Robot Arm</h1>
-
-<h2>Shoulder : <span id="sAngle">90</span>°</h2>
-
-<input
-type="range"
-min="0"
-max="180"
-value="90"
-class="slider"
-id="shoulder"
-oninput="moveShoulder(this.value)"
->
-
-<br><br>
-
-<h2>Elbow : <span id="eAngle">90</span>°</h2>
-
-<input
-type="range"
-min="0"
-max="180"
-value="90"
-class="slider"
-id="elbow"
-oninput="moveElbow(this.value)"
->
-
-<br><br><br>
-
-<button onclick="homePosition()">🏠 HOME</button>
-
-<script>
-
-function moveShoulder(angle){
-
-document.getElementById("sAngle").innerHTML=angle;
-
-fetch("/shoulder?angle="+angle);
-
-}
-
-function moveElbow(angle){
-
-document.getElementById("eAngle").innerHTML=angle;
-
-fetch("/elbow?angle="+angle);
-
-}
-
-function homePosition(){
-
-document.getElementById("shoulder").value=90;
-document.getElementById("elbow").value=90;
-
-document.getElementById("sAngle").innerHTML=90;
-document.getElementById("eAngle").innerHTML=90;
-
-fetch("/home");
-
-}
-
-</script>
-
-</body>
-</html>
-)rawliteral";
-
-  server.send(200,"text/html",html);
-}
-
-void handleShoulder(){
-
-  if(server.hasArg("angle")){
-    shoulderAngle=server.arg("angle").toInt();
-    shoulder.write(shoulderAngle);
-  }
-
-  server.send(200,"text/plain","OK");
-}
-
-void handleElbow(){
-
-  if(server.hasArg("angle")){
-    elbowAngle=server.arg("angle").toInt();
-    elbow.write(elbowAngle);
-  }
-
-  server.send(200,"text/plain","OK");
-}
-
-void handleHome(){
-
-  shoulderAngle=90;
-  elbowAngle=90;
-
-  shoulder.write(90);
-  elbow.write(90);
-
-  server.send(200,"text/plain","HOME");
-}
-
-void setup(){
-
-  Serial.begin(115200);
-
-  shoulder.attach(13,500,2400);
-  elbow.attach(12,500,2400);
-
-  shoulder.write(90);
-  elbow.write(90);
-
-  WiFi.softAP(ssid,password);
-
-  Serial.println("WiFi Started");
-  Serial.print("IP : ");
-  Serial.println(WiFi.softAPIP());
-
-  server.on("/",handleRoot);
-
-  server.on("/shoulder",handleShoulder);
-
-  server.on("/elbow",handleElbow);
-
-  server.on("/home",handleHome);
-
-  server.begin();
-
-  Serial.println("Server Started");
-
-}
-
-void loop(){
-
-  server.handleClient();
-
-}
+- Add gripper
+- Add camera
+- Voice control
+- Object detection
